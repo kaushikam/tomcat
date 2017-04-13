@@ -36,11 +36,14 @@ RUN chgrp -R tomcat /opt/tomcat
 RUN chmod -R g+r /opt/tomcat/conf
 RUN chmod g+x /opt/tomcat/conf
 RUN chown -R tomcat /opt/tomcat/webapps/ /opt/tomcat/work/ /opt/tomcat/temp/ /opt/tomcat/logs/
-RUN mkdir /etc/service/memcached
-COPY memcached.sh /etc/service/memcached/run
-RUN chmod +x /etc/service/memcached/run
-# Baseimage-docker disables the SSH server by default
-RUN rm -f /etc/service/memcached/down
+RUN mkdir -pv /etc/service/tomcat 
+COPY tomcat /etc/service/tomcat/run
+RUN chmod +x /etc/service/tomcat/run
+
+#Now configure tomcat
+ADD host-manager-context.xml /opt/tomcat/webapps/host-manager/META-INF/context.xml
+ADD manager-context.xml /opt/tomcat/webapps/manager/META-INF/context.xml
+ADD tomcat-users.xml  /opt/tomcat/conf/tomcat-users.xml
 
 # Clean up APT when done.
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
